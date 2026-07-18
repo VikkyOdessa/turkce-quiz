@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Türkçe Quiz — турецькі падежі</title>
+<meta name="description" content="Інтерактивні квізи з турецької мови, рівень A2. Падежі: знахідний, давальний, місцевий, вихідний.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #1C2333;
+    --ink-soft: #5A6274;
+    --cobalt: #22418F;
+    --cobalt-deep: #16295C;
+    --turquoise: #17A398;
+    --turquoise-soft: #E1F4F2;
+    --tulip: #D64545;
+    --tulip-soft: #FBEAEA;
+    --line: #E4E1D6;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+
+  header {
+    background: var(--cobalt);
+    color: #fff;
+    padding: 56px 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: "";
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 260px; height: 260px;
+    border-radius: 50%;
+    background: var(--cobalt-deep);
+    opacity: .6;
+  }
+  header .wrap { position: relative; z-index: 1; }
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: #A9C0F5;
+    margin-bottom: 14px;
+    font-weight: 700;
+  }
+  h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(28px, 6vw, 44px);
+    line-height: 1.15;
+    margin-bottom: 14px;
+  }
+  h1 .tr { color: #7FD9D0; }
+  .sub { color: #D4DEF5; font-size: 17px; max-width: 480px; }
+
+  .nazar-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+  .nazar {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #3D5CB0;
+    position: relative;
+    transition: transform .25s, border-color .25s, background .25s;
+  }
+  .nazar::after {
+    content: "";
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    background: var(--cobalt-deep);
+    transition: background .25s;
+  }
+  .nazar.ok { border-color: var(--turquoise); transform: scale(1.12); }
+  .nazar.ok::after { background: var(--turquoise); }
+  .nazar.bad { border-color: var(--tulip); transform: scale(1.12); }
+  .nazar.bad::after { background: var(--tulip); }
+  .score-pill {
+    margin-left: auto;
+    font-weight: 700;
+    font-size: 15px;
+    background: rgba(255,255,255,.12);
+    padding: 6px 14px;
+    border-radius: 100px;
+  }
+
+  main { padding: 40px 0 24px; }
+  .topic-label {
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    margin-bottom: 16px;
+  }
+  .card .tag {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .card .sentence {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+  .card .sentence b { color: var(--cobalt); font-weight: 700; }
+  .opts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .opts button {
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 9px 20px;
+    border-radius: 100px;
+    border: 2px solid var(--line);
+    background: #fff;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .opts button:hover { border-color: var(--cobalt); }
+  .opts button:active { transform: scale(.96); }
+  .opts button:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .opts button.ok { background: var(--turquoise-soft); border-color: var(--turquoise); color: #0B6B63; }
+  .opts button.bad { background: var(--tulip-soft); border-color: var(--tulip); color: #A32626; }
+  .opts button:disabled { cursor: default; }
+  .fb { display: none; margin-top: 14px; font-size: 15px; font-weight: 500; }
+  .fb.show { display: block; }
+  .fb.good { color: #0B6B63; }
+  .fb.wrong { color: #A32626; }
+  .tr-line { display: none; margin-top: 6px; font-size: 15px; color: var(--ink-soft); }
+  .tr-line.show { display: block; }
+
+  .finish {
+    display: none;
+    text-align: center;
+    padding: 32px 24px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+  }
+  .finish.show { display: block; }
+  .finish .big {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--cobalt);
+    margin-bottom: 8px;
+  }
+  .finish p { color: var(--ink-soft); margin-bottom: 20px; }
+  .btn-restart {
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 100px;
+    border: none;
+    background: var(--cobalt);
+    color: #fff;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn-restart:hover { background: var(--cobalt-deep); }
+  .btn-restart:active { transform: scale(.97); }
+  .btn-restart:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+
+  footer {
+    padding: 24px 0 40px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Türkçe öğreniyorum · A2</p>
+    <h1>Турецькі падежі<span class="tr">.</span></h1>
+    <p class="sub">10 речень, чотири падежі: знахідний, давальний, місцевий і вихідний. Обери правильний суфікс — переклад і пояснення з'являться після відповіді.</p>
+    <div class="nazar-row" id="nazarRow" aria-hidden="true"></div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <p class="topic-label">Hâl ekleri — відмінкові суфікси</p>
+    <div id="quiz"></div>
+    <div class="finish" id="finish">
+      <div class="big" id="finalScore"></div>
+      <p id="finalText"></p>
+      <button class="btn-restart" id="restart">Пройти ще раз</button>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Kolay gelsin! · зроблено для практики турецької A2</div>
+</footer>
+
+<script>
+const QUESTIONS = [
+  {
+    tag: "1 · знахідний (belirtme hâli)",
+    pre: "Bu sabah durakta otobüs", post: " uzun süre bekledik.",
+    opts: ["-ü", "-e", "-te", "-ten"], a: 0,
+    ok: "«otobüs» — прямий додаток (чекали на що?) → знахідний. Після ü за гармонією: otobüsü.",
+    tr: "Сьогодні вранці ми довго чекали на автобус на зупинці."
+  },
+  {
+    tag: "2 · давальний (yönelme hâli)",
+    pre: "Hafta sonu ailemle deniz kenarı", post: " gitmek istiyoruz.",
+    opts: ["-nda", "-na", "-nı", "-ndan"], a: 1,
+    ok: "Рух «куди?» → давальний. «kenarı» вже має присвійний суфікс, тому вставне n: kenarına.",
+    tr: "На вихідних ми з родиною хочемо поїхати на берег моря."
+  },
+  {
+    tag: "3 · місцевий (bulunma hâli)",
+    pre: "Kışın dağlar", post: " çok kar yağıyor.",
+    opts: ["-a", "-ı", "-da", "-dan"], a: 2,
+    ok: "«Де падає сніг?» → -da/-de. Після твердого a: dağlarda.",
+    tr: "Взимку в горах падає багато снігу."
+  },
+  {
+    tag: "4 · вихідний (ayrılma hâli)",
+    pre: "Bu hediyeyi en yakın arkadaşım", post: " aldım.",
+    opts: ["-a", "-da", "-ı", "-dan"], a: 3,
+    ok: "«Від кого отримав?» → вихідний -dan/-den: arkadaşımdan.",
+    tr: "Цей подарунок я отримав від свого найкращого друга."
+  },
+  {
+    tag: "5 · знахідний (belirtme hâli)",
+    pre: "Dün akşam annemin pişirdiği çorba", post: " çok beğendim.",
+    opts: ["-yı", "-ya", "-da", "-dan"], a: 0,
+    ok: "«beğenmek» вимагає знахідного (сподобалось що?). Після голосного a буферне y: çorbayı.",
+    tr: "Вчора ввечері мені дуже сподобався суп, який приготувала мама."
+  },
+  {
+    tag: "6 · давальний (yönelme hâli)",
+    pre: "Sınavdan sonra bütün öğrenciler bahçe", post: " çıktı.",
+    opts: ["-de", "-yi", "-ye", "-den"], a: 2,
+    ok: "Рух «куди вийшли?» → -a/-e. Після голосного e буферне y: bahçeye.",
+    tr: "Після іспиту всі учні вийшли в сад."
+  },
+  {
+    tag: "7 · місцевий (bulunma hâli)",
+    pre: "Cüzdanımı sanırım dolmuş", post: " unuttum.",
+    opts: ["-ta", "-a", "-u", "-tan"], a: 0,
+    ok: "«Де забув?» → місцевий. Після глухого ş суфікс оглушується: dolmuşta, а не dolmuşda.",
+    tr: "Здається, я забув гаманець у маршрутці."
+  },
+  {
+    tag: "8 · вихідний (ayrılma hâli)",
+    pre: "Uçak birazdan Kiev havalimanı", post: " kalkacak.",
+    opts: ["-nda", "-na", "-ndan", "-nı"], a: 2,
+    ok: "«Звідки вилітає?» → вихідний. Після присвійного суфікса вставне n: havalimanından.",
+    tr: "Літак незабаром вилетить з київського аеропорту."
+  },
+  {
+    tag: "9 · знахідний (belirtme hâli)",
+    pre: "Lütfen pencere", post: " kapat, dışarısı çok soğuk.",
+    opts: ["-de", "-ye", "-yi", "-den"], a: 2,
+    ok: "Зачини що? Конкретне вікно → знахідний. Після e буферне y: pencereyi.",
+    tr: "Будь ласка, зачини вікно, надворі дуже холодно."
+  },
+  {
+    tag: "10 · давальний (yönelme hâli)",
+    pre: "Küçük kardeşim her akşam masal dinlemek için yanım", post: " geliyor.",
+    opts: ["-da", "-ı", "-dan", "-a"], a: 3,
+    ok: "Приходить «до кого?» → давальний: yanıma (yan + -ım + -a).",
+    tr: "Мій молодший брат щовечора приходить до мене послухати казку."
+  }
+];
+
+const quizEl = document.getElementById('quiz');
+const nazarRow = document.getElementById('nazarRow');
+const finishEl = document.getElementById('finish');
+let score = 0, answered = 0;
+
+function render() {
+  score = 0; answered = 0;
+  quizEl.innerHTML = '';
+  finishEl.classList.remove('show');
+
+  nazarRow.innerHTML = QUESTIONS.map(() => '<span class="nazar"></span>').join('')
+    + '<span class="score-pill" id="scorePill">0 / ' + QUESTIONS.length + '</span>';
+  const dots = nazarRow.querySelectorAll('.nazar');
+
+  QUESTIONS.forEach((q, qi) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<p class="tag">' + q.tag + '</p>' +
+      '<p class="sentence">' + q.pre + '<b>___</b>' + q.post + '</p>' +
+      '<div class="opts">' + q.opts.map((o, i) => '<button data-i="' + i + '">' + o + '</button>').join('') + '</div>' +
+      '<p class="fb"></p>' +
+      '<p class="tr-line">→ ' + q.tr + '</p>';
+    quizEl.appendChild(card);
+
+    const fb = card.querySelector('.fb');
+    const trl = card.querySelector('.tr-line');
+    const buttons = card.querySelectorAll('.opts button');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (card.dataset.done) return;
+        card.dataset.done = "1";
+        answered++;
+        const isOk = +btn.dataset.i === q.a;
+        if (isOk) score++;
+
+        buttons.forEach(b => {
+          b.disabled = true;
+          if (+b.dataset.i === q.a) b.classList.add('ok');
+          else if (b === btn) b.classList.add('bad');
+        });
+
+        fb.textContent = (isOk ? 'Doğru! ' : 'Maalesef. ') + q.ok;
+        fb.classList.add('show', isOk ? 'good' : 'wrong');
+        trl.classList.add('show');
+
+        dots[qi].classList.add(isOk ? 'ok' : 'bad');
+        document.getElementById('scorePill').textContent = score + ' / ' + QUESTIONS.length;
+
+        if (answered === QUESTIONS.length) showFinish();
+      });
+    });
+  });
+}
+
+function showFinish() {
+  const n = QUESTIONS.length;
+  document.getElementById('finalScore').textContent = score + ' / ' + n;
+  document.getElementById('finalText').textContent =
+    score >= 9 ? 'Harika! Чудовий результат — падежі майже підкорені.'
+    : score >= 6 ? 'İyi! Непогано — переглянь пояснення до помилок вище.'
+    : 'Варто ще потренуватись — усі пояснення до помилок вище.';
+  finishEl.classList.add('show');
+  finishEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+document.getElementById('restart').addEventListener('click', () => {
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+render();
+</script>
+</body>
+</html>
