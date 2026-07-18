@@ -289,6 +289,7 @@
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
     html { scroll-behavior: auto; }
+    .confetti-piece { animation: confetti-fall linear forwards !important; }
   }
 </style>
 </head>
@@ -794,7 +795,6 @@ let sections = [], dots = [], total = 0, quizBuilt = false;
 const CONF_COLORS = ['#22418F', '#17A398', '#D64545', '#F2B705', '#7FD9D0'];
 function celebrate(n) {
   if (!n) return;
-  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const box = document.createElement('div');
   box.className = 'confetti-box';
   for (let i = 0; i < n; i++) {
@@ -812,7 +812,30 @@ function celebrate(n) {
   setTimeout(() => box.remove(), 3800);
 }
 
-function confettiFor(sc, n) { return sc >= n * 0.9 ? 90 : sc >= n * 0.6 ? 40 : 0; }
+function confettiFor(sc, n) { return sc === n ? 140 : sc >= n * 0.9 ? 90 : sc >= n * 0.6 ? 40 : 0; }
+
+const PERFECT = {
+  uk: [
+    "Стоп-стоп… Скажіть чесно: ви робот? 🤖 Бо жива людина ТАК ідеально не відповідає!",
+    "10 з 10?! Зізнавайтесь, ви таємний турок і просто прикидаєтесь учнем 🇹🇷",
+    "Mükemmel! Аж підозріло досконало 🤨 Навіть автоперевірка перевірила себе двічі.",
+    "Нуль помилок. НУЛЬ. Öğretmen у шоці, підручник плаче від гордості 😭👏",
+    "Це було так ідеально, що конфеті засоромилось і попросило добавки 🎉",
+    "Ви щойно склали цей квіз краще, ніж він сам себе знає. Helal olsun! 💪"
+  ],
+  ru: [
+    "Стоп-стоп… Признавайтесь честно: вы робот? 🤖 Живой человек ТАК идеально не отвечает!",
+    "10 из 10?! Сознавайтесь, вы тайный турок и просто притворяетесь учеником 🇹🇷",
+    "Mükemmel! Даже подозрительно идеально 🤨 Автопроверка перепроверила себя дважды.",
+    "Ноль ошибок. НОЛЬ. Öğretmen в шоке, учебник плачет от гордости 😭👏",
+    "Это было так идеально, что конфетти застеснялось и попросило добавки 🎉",
+    "Вы только что прошли этот квиз лучше, чем он сам себя знает. Helal olsun! 💪"
+  ]
+};
+function perfectPraise() {
+  const list = PERFECT[LANG] || PERFECT.uk;
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 function shuffle(arr) {
   const copy = arr.slice();
@@ -849,13 +872,14 @@ function checkAllDone() {
     const n = total, sc = globalScore();
     document.getElementById('finalScore').textContent = sc + ' / ' + n;
     document.getElementById('finalText').textContent =
-      sc >= n * 0.9 ? t('vHarika') : sc >= n * 0.6 ? t('vIyi') : t('vTrain');
+      sc === n ? perfectPraise() : sc >= n * 0.9 ? t('vHarika') : sc >= n * 0.6 ? t('vIyi') : t('vTrain');
     finishEl.classList.add('show');
   } else {
     finishEl.classList.remove('show');
   }
 }
 function sectionVerdict(sc, n) {
+  if (sc === n) return perfectPraise();
   return sc >= n * 0.9 ? t('sHarika') : sc >= n * 0.6 ? t('sIyi') : t('sTrain');
 }
 
