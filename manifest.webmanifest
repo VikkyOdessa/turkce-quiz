@@ -1,0 +1,13 @@
+{
+  "name": "Türkçe Quiz",
+  "short_name": "Türkçe Quiz",
+  "description": "Інтерактивні квізи з турецької мови · Интерактивные квизы по турецкому языку",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#FAF9F4",
+  "theme_color": "#22418F",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
