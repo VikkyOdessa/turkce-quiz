@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Türkçe Quiz</title>
+<meta name="description" content="Інтерактивні квізи з турецької мови · Интерактивные квизы по турецкому языку">
+<meta name="theme-color" content="#FAF9F4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #FAF9F4;
+    --ink: #1C2333;
+    --ink-soft: #5A6274;
+    --cobalt: #22418F;
+    --cobalt-deep: #16295C;
+    --turquoise: #17A398;
+    --turquoise-soft: #E1F4F2;
+    --tulip: #D64545;
+    --tulip-soft: #FBEAEA;
+    --line: #E4E1D6;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Manrope', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 20px; }
+  .wide .wrap { max-width: 1080px; }
+  .wide .topbar-wrap .wrap { max-width: 1080px; }
+
+  .topbar-wrap {
+    position: sticky; top: 0; z-index: 60;
+    background: rgba(250, 249, 244, .78);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--line);
+  }
+  .topbar {
+    display: flex; align-items: center; gap: 12px;
+    padding-top: 10px; padding-bottom: 10px;
+  }
+  .back {
+    font-family: 'Manrope', sans-serif;
+    font-size: 15px; font-weight: 700;
+    background: rgba(34, 65, 143, .08);
+    color: var(--cobalt); border: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    cursor: pointer; visibility: hidden; flex: none;
+    transition: background .15s;
+  }
+  .back:hover { background: rgba(34, 65, 143, .16); }
+  .back.show { visibility: visible; }
+  .brand {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 15px; font-weight: 700;
+    color: var(--ink);
+    margin-right: auto;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .brand .tr { color: var(--turquoise); }
+  .langs { display: flex; gap: 6px; flex: none; }
+  .langs button {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px; font-weight: 700;
+    background: transparent; color: var(--ink-soft);
+    border: 1.5px solid var(--line);
+    padding: 5px 12px; border-radius: 100px;
+    cursor: pointer; transition: all .15s;
+  }
+  .langs button.on { background: var(--cobalt); border-color: var(--cobalt); color: #fff; }
+
+  .nazar-strip { padding-bottom: 0; }
+  .nazar-row {
+    display: none; gap: 6px; align-items: center;
+    padding-bottom: 10px; flex-wrap: wrap;
+  }
+  .nazar-row.show { display: flex; }
+  .nazar {
+    width: 16px; height: 16px; border-radius: 50%;
+    background: #fff; border: 2px solid #C9D3EA;
+    position: relative;
+    transition: transform .25s, border-color .25s;
+  }
+  .nazar::after {
+    content: ""; position: absolute; inset: 4px; border-radius: 50%;
+    background: #C9D3EA; transition: background .25s;
+  }
+  .nazar.ok { border-color: var(--turquoise); transform: scale(1.2); }
+  .nazar.ok::after { background: var(--turquoise); }
+  .nazar.bad { border-color: var(--tulip); transform: scale(1.2); }
+  .nazar.bad::after { background: var(--tulip); }
+  .score-pill {
+    margin-left: auto; font-weight: 700; font-size: 13px;
+    background: rgba(34, 65, 143, .08); color: var(--cobalt);
+    padding: 4px 12px; border-radius: 100px;
+  }
+
+  .hero { padding: 36px 0 26px; }
+  .hero-grid { display: block; }
+  .hero-text { margin-bottom: 24px; }
+  .hero-media { position: relative; }
+  .hero-media img {
+    display: block;
+    width: 100%; height: 420px;
+    object-fit: cover;
+    border-radius: 26px;
+    box-shadow: 0 24px 60px rgba(34, 65, 143, .25);
+  }
+  .hero-media::after {
+    content: "";
+    position: absolute; inset: 0;
+    border-radius: 26px;
+    background: linear-gradient(180deg, transparent 55%, rgba(22, 41, 92, .35) 100%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    position: absolute; right: 18px; bottom: -16px;
+    width: 52px; height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 27px;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 50%;
+    box-shadow: 0 8px 22px rgba(28, 35, 51, .16);
+    transform: rotate(-8deg);
+    z-index: 2;
+  }
+  .hero-media.off { display: none; }
+  @media (max-width: 560px) {
+    .hero-media img { height: 210px; }
+  }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .16em; text-transform: uppercase;
+    color: var(--turquoise); margin-bottom: 10px; font-weight: 700;
+  }
+  .hero h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(30px, 6vw, 44px);
+    line-height: 1.12;
+    margin-bottom: 10px;
+    background: linear-gradient(92deg, var(--cobalt) 30%, var(--turquoise) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero h1 .tr { color: var(--turquoise); -webkit-text-fill-color: var(--turquoise); }
+  .hero .sub { color: var(--ink-soft); font-size: 16px; max-width: 500px; }
+
+  main { padding: 36px 0 24px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .choice-grid { display: grid; gap: 14px; }
+  .wide #screen-home .choice-grid,
+  .wide #screen-lang .choice-grid,
+  .wide #screen-topics .choice-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  .choice {
+    display: block; width: 100%; text-align: left;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 20px 22px;
+    cursor: pointer; font-family: 'Manrope', sans-serif;
+    transition: border-color .15s, transform .1s, box-shadow .15s;
+  }
+  .choice:hover { border-color: var(--cobalt); box-shadow: 0 4px 14px rgba(34,65,143,.08); }
+  .choice:active { transform: scale(.985); }
+  .choice:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .choice.disabled { opacity: .55; cursor: default; }
+  .choice.disabled:hover { border-color: var(--line); box-shadow: none; }
+  .choice .c-title {
+    font-family: 'Unbounded', sans-serif; font-size: 18px; font-weight: 700;
+    color: var(--cobalt); margin-bottom: 4px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .choice .c-badge {
+    font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 700;
+    background: var(--turquoise-soft); color: #0B6B63;
+    padding: 2px 10px; border-radius: 100px;
+  }
+  .choice .c-badge.soon { background: #F0EEE5; color: var(--ink-soft); }
+  .choice .c-desc { font-size: 14px; color: var(--ink-soft); }
+  .level-a1 .c-title { color: var(--turquoise); }
+  .c-best { display: block; font-size: 13px; font-weight: 700; color: #0B6B63; margin-top: 6px; }
+
+  .section-head { margin: 36px 0 18px; }
+  .section-head:first-child { margin-top: 0; }
+  .section-head h2 {
+    font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700;
+    color: var(--cobalt); margin-bottom: 4px;
+  }
+  .section-head p { font-size: 14px; color: var(--ink-soft); }
+
+  .card {
+    background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px;
+  }
+  .card .tag {
+    display: none; font-size: 13px; color: var(--ink-soft);
+    font-weight: 500; margin-bottom: 6px;
+  }
+  .card .tag.show { display: block; }
+  .card .sentence { font-size: 18px; margin-bottom: 16px; }
+  .card .sentence .num { color: var(--ink-soft); font-weight: 700; margin-right: 2px; }
+  .card .sentence b { color: var(--cobalt); font-weight: 700; }
+  .card .sentence b.filled {
+    color: #0B6B63; background: var(--turquoise-soft);
+    padding: 1px 5px; border-radius: 6px;
+    display: inline-block; animation: pop .3s ease;
+  }
+  @keyframes pop {
+    0% { transform: scale(.7); }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+  .speak {
+    font-size: 15px; line-height: 1; padding: 4px 8px;
+    border-radius: 100px; border: 1.5px solid var(--line);
+    background: #fff; cursor: pointer; vertical-align: middle;
+    transition: border-color .15s, transform .1s;
+  }
+  .speak:hover { border-color: var(--cobalt); }
+  .speak:active { transform: scale(.92); }
+  .speak:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .no-tts .speak { display: none; }
+
+  .opts { display: flex; gap: 10px; flex-wrap: wrap; }
+  .opts button {
+    font-family: 'Manrope', sans-serif; font-size: 16px; font-weight: 700;
+    padding: 9px 20px; border-radius: 100px;
+    border: 2px solid var(--line); background: #fff; color: var(--ink);
+    cursor: pointer; transition: border-color .15s, background .15s, transform .1s;
+  }
+  .opts button:hover { border-color: var(--cobalt); }
+  .opts button:active { transform: scale(.96); }
+  .opts button:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .opts button.ok { background: var(--turquoise-soft); border-color: var(--turquoise); color: #0B6B63; }
+  .opts button.bad { background: var(--tulip-soft); border-color: var(--tulip); color: #A32626; }
+  .opts button:disabled { cursor: default; }
+  .fb { display: none; margin-top: 14px; font-size: 15px; font-weight: 500; }
+  .fb.show { display: block; }
+  .fb.good { color: #0B6B63; }
+  .fb.wrong { color: #A32626; }
+  .tr-line { display: none; margin-top: 6px; font-size: 15px; color: var(--ink-soft); }
+  .tr-line.show { display: block; }
+
+  .sec-result {
+    display: none; text-align: center; padding: 24px;
+    background: var(--turquoise-soft); border: 1px solid var(--turquoise);
+    border-radius: var(--radius); margin-bottom: 16px;
+  }
+  .sec-result.show { display: block; }
+  .sec-result .sec-score {
+    font-family: 'Unbounded', sans-serif; font-size: 20px; font-weight: 700;
+    color: var(--cobalt); margin-bottom: 6px;
+  }
+  .sec-result .sec-text { color: var(--ink-soft); font-size: 15px; margin-bottom: 16px; }
+  .sec-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .finish {
+    display: none; text-align: center; padding: 32px 24px;
+    background: #fff; border: 1px solid var(--line);
+    border-radius: var(--radius); margin-bottom: 16px;
+  }
+  .finish.show { display: block; }
+  .finish .big {
+    font-family: 'Unbounded', sans-serif; font-size: 30px; font-weight: 700;
+    color: var(--cobalt); margin-bottom: 8px;
+  }
+  .finish p { color: var(--ink-soft); margin-bottom: 20px; }
+  .btn-restart {
+    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 11px 26px; border-radius: 100px; border: none;
+    background: var(--cobalt); color: #fff; cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .btn-restart:hover { background: var(--cobalt-deep); }
+  .btn-restart:active { transform: scale(.97); }
+  .btn-restart:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .btn-shuffle {
+    font-family: 'Manrope', sans-serif; font-size: 15px; font-weight: 700;
+    padding: 10px 24px; border-radius: 100px;
+    border: 2px solid var(--cobalt); background: transparent; color: var(--cobalt);
+    cursor: pointer; transition: background .15s, color .15s, transform .1s;
+  }
+  .btn-shuffle:hover { background: var(--cobalt); color: #fff; }
+  .btn-shuffle:active { transform: scale(.97); }
+  .btn-shuffle:focus-visible { outline: 3px solid var(--turquoise); outline-offset: 2px; }
+  .finish .btn-shuffle { margin-left: 10px; }
+  .shuffle-bar { text-align: center; margin: 8px 0 16px; }
+
+  .vcount { font-size: 13px; color: var(--ink-soft); font-weight: 700; margin-bottom: 10px; }
+  .vmedia { height: 200px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+  .vmedia img { max-height: 200px; max-width: 100%; border-radius: 12px; object-fit: cover; }
+  .vemoji { font-size: 104px; line-height: 1; }
+  .vword {
+    font-family: 'Unbounded', sans-serif; font-size: 26px; font-weight: 700;
+    color: var(--cobalt);
+  }
+  .vtrans { color: var(--ink-soft); font-size: 17px; margin: 4px 0 18px; }
+  .vcard { text-align: center; }
+  .vopts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vopts button { width: 100%; }
+
+  .vnav { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
+  .vnav button {
+    width: 32px; height: 32px; border-radius: 50%;
+    border: 2px solid var(--line); background: #fff;
+    font-family: 'Manrope', sans-serif; font-weight: 700; font-size: 13px;
+    color: var(--ink-soft); cursor: pointer;
+    transition: border-color .15s, background .15s, transform .1s;
+  }
+  .vnav button:hover { border-color: var(--cobalt); }
+  .vnav button.seen { border-color: var(--turquoise); color: #0B6B63; }
+  .vnav button.cur { background: var(--cobalt); border-color: var(--cobalt); color: #fff; transform: scale(1.1); }
+
+  .modal-back {
+    position: fixed; inset: 0; background: rgba(28,35,51,.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 120; padding: 20px;
+  }
+  .modal {
+    background: #fff; border-radius: 18px; padding: 30px 26px;
+    max-width: 430px; width: 100%; text-align: center;
+    box-shadow: 0 20px 60px rgba(22,41,92,.3);
+  }
+  .modal .m-title {
+    font-family: 'Unbounded', sans-serif; font-size: 21px; font-weight: 700;
+    color: var(--cobalt); margin-bottom: 10px;
+  }
+  .modal .m-text { color: var(--ink-soft); font-size: 15px; margin-bottom: 22px; }
+  .modal .m-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  .confetti-box { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 99; }
+  .confetti-piece {
+    position: absolute; top: -20px;
+    width: 10px; height: 14px; border-radius: 3px;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: .85; }
+  }
+  .fw-spark {
+    position: absolute;
+    width: 7px; height: 7px; border-radius: 50%;
+    opacity: 0;
+    animation: fw-burst .95s ease-out forwards;
+  }
+  @keyframes fw-burst {
+    0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(.3); opacity: 0; }
+  }
+
+  footer {
+    padding: 24px 0 40px; text-align: center;
+    font-size: 13px; color: var(--ink-soft);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    html { scroll-behavior: auto; }
+    .confetti-piece { animation: confetti-fall linear forwards !important; }
+    .fw-spark { animation: fw-burst .95s ease-out forwards !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar-wrap">
+  <div class="wrap topbar">
+    <button class="back" id="backBtn">←</button>
+    <div class="brand" id="barTitle">Türkçe Quiz<span class="tr">.</span></div>
+    <div class="langs" id="langBar">
+      <button data-lang="uk">UA</button>
+      <button data-lang="ru">RU</button>
+    </div>
+  </div>
+  <div class="wrap nazar-strip">
+    <div class="nazar-row" id="nazarRow" aria-hidden="true"></div>
+  </div>
+</div>
+
+<header class="hero" id="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <p class="eyebrow">Türkçe öğreniyorum</p>
+      <h1>Türkçe Quiz<span class="tr">.</span></h1>
+      <p class="sub" id="hSub"></p>
+    </div>
+    <div class="hero-media" id="heroMedia">
+      <img src="img/hero.jpg" alt="Türkiye" id="heroImg">
+      <span class="hero-badge">🧿</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="screen" id="screen-lang">
+      <div class="choice-grid">
+        <button class="choice" data-pick="uk">
+          <span class="c-title">Українська</span>
+          <span class="c-desc">Вчу турецьку через українську</span>
+        </button>
+        <button class="choice" data-pick="ru">
+          <span class="c-title">Русский</span>
+          <span class="c-desc">Учу турецкий через русский</span>
+        </button>
+        <button class="choice disabled" tabindex="-1">
+          <span class="c-title">English <span class="c-badge soon">soon</span></span>
+          <span class="c-desc">Learn Turkish through English</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-home">
+      <div class="choice-grid">
+        <button class="choice level-a1" data-level="a1">
+          <span class="c-title">A1 <span class="c-badge" id="a1badge"></span></span>
+          <span class="c-desc" data-i="a1desc"></span>
+        </button>
+        <button class="choice" data-level="a2">
+          <span class="c-title">A2 <span class="c-badge" id="a2badge"></span></span>
+          <span class="c-desc" data-i="a2desc"></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="screen" id="screen-topics">
+      <div class="choice-grid" id="topicGrid"></div>
+    </div>
+
+    <div class="screen" id="screen-quiz">
+      <div id="quiz"></div>
+      <div class="finish" id="finish">
+        <div class="big" id="finalScore"></div>
+        <p id="finalText"></p>
+        <button class="btn-restart" id="restart"></button>
+        <button class="btn-shuffle" id="finishMix"></button>
+      </div>
+      <div class="shuffle-bar">
+        <button class="btn-shuffle" id="globalMix"></button>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">Kolay gelsin! 🧿</div>
+</footer>
+
+<script>
+/* ------------------ i18n ------------------ */
+const I18N = {
+  uk: {
+    vLearnTitle: "Крок 1 · Запам'ятай",
+    vLearnSub: "Дивись на картинку, слухай слово. Гортай далі, коли запам'ятав.",
+    vTestTitle: "Крок 2 · Перевір себе",
+    vTestSub: "Обери турецьке слово до картинки.",
+    vNext: "Далі →",
+    vStart: "Почати перевірку",
+    vResult: "Результат",
+    leaveTitle: "Ой, уже йдете? 🥺",
+    leaveText: "А чому? Ми ж так гарно займались… Гаразд, ідіть — але вправа сумуватиме. Ми чекатимемо вас, щоб доробити її разом!",
+    leaveStay: "Добре, ще трошки 💪",
+    leaveGo: "Вийти (я повернусь!)",
+    mistakesBtn: "🔁 Повторити помилки",
+    sub_home: "Оберіть свій рівень. Матеріал постійно поповнюється.",
+    sub_lang: "Оберіть, з якої мови ви вчите турецьку.",
+    sub_topics: "Оберіть тему",
+    sub_quiz: "Переклад і пояснення з'являються після відповіді.",
+    soon: "скоро",
+    topicWord: "тема",
+    a1desc: "Для початківців: алфавіт, привітання, перші суфікси.",
+    a2desc: "Відмінки, буферні літери, оглушення приголосних.",
+    topicName: "Відмінки · Hâl ekleri",
+    topicDesc: "30 питань: знахідний, давальний, місцевий, вихідний. Розминка + основний рівень, з озвучкою.",
+    warmupTitle: "Розминка",
+    warmupSub: "20 коротких речень — та сама лексика, що й далі. Мета: відповідати не думаючи.",
+    mainTitle: "Основний рівень",
+    mainSub: "10 довших речень: буферні y та n, присвійні суфікси, оглушення.",
+    mixTitle: "Впереміш",
+    mixSub: "Усі питання у випадковому порядку — відмінок треба визначити з контексту.",
+    again: "🔄 Почати знову",
+    mixBtn: "🔀 Перемішати",
+    globalMix: "🔀 Перемішати питання",
+    restart: "Пройти ще раз",
+    vHarika: "Harika! Чудовий результат — відмінки майже підкорені.",
+    vIyi: "İyi! Непогано — переглянь пояснення до помилок вище.",
+    vTrain: "Варто ще потренуватись — усі пояснення до помилок вище.",
+    sHarika: "Harika! Майже без помилок.",
+    sIyi: "İyi! Непогано, але глянь пояснення до помилок.",
+    sTrain: "Варто повторити цю вправу ще раз.",
+    speakTitle: "Озвучити (другий клік — повільно)"
+  },
+  ru: {
+    vLearnTitle: "Шаг 1 · Запомни",
+    vLearnSub: "Смотри на картинку, слушай слово. Листай дальше, когда запомнил.",
+    vTestTitle: "Шаг 2 · Проверь себя",
+    vTestSub: "Выбери турецкое слово к картинке.",
+    vNext: "Дальше →",
+    vStart: "Начать проверку",
+    vResult: "Результат",
+    leaveTitle: "Ой, уже уходите? 🥺",
+    leaveText: "А почему? Мы же так хорошо занимались… Ладно, идите — но упражнение будет скучать. Мы будем ждать вас, чтобы доделать его вместе!",
+    leaveStay: "Ладно, ещё чуть-чуть 💪",
+    leaveGo: "Выйти (я вернусь!)",
+    mistakesBtn: "🔁 Повторить ошибки",
+    sub_home: "Выберите свой уровень. Материал постоянно пополняется.",
+    sub_lang: "Выберите, с какого языка вы учите турецкий.",
+    sub_topics: "Выберите тему",
+    sub_quiz: "Перевод и объяснение появляются после ответа.",
+    soon: "скоро",
+    topicWord: "тема",
+    a1desc: "Для начинающих: алфавит, приветствия, первые суффиксы.",
+    a2desc: "Падежи, буферные буквы, оглушение согласных.",
+    topicName: "Падежи · Hâl ekleri",
+    topicDesc: "30 вопросов: винительный, дательный, местный, исходный. Разминка + основной уровень, с озвучкой.",
+    warmupTitle: "Разминка",
+    warmupSub: "20 коротких предложений — та же лексика, что и дальше. Цель: отвечать не думая.",
+    mainTitle: "Основной уровень",
+    mainSub: "10 предложений подлиннее: буферные y и n, притяжательные суффиксы, оглушение.",
+    mixTitle: "Вперемешку",
+    mixSub: "Все вопросы в случайном порядке — падеж нужно определить из контекста.",
+    again: "🔄 Начать заново",
+    mixBtn: "🔀 Перемешать",
+    globalMix: "🔀 Перемешать вопросы",
+    restart: "Пройти ещё раз",
+    vHarika: "Harika! Отличный результат — падежи почти покорены.",
+    vIyi: "İyi! Неплохо — посмотри объяснения к ошибкам выше.",
+    vTrain: "Стоит ещё потренироваться — все объяснения к ошибкам выше.",
+    sHarika: "Harika! Почти без ошибок.",
+    sIyi: "İyi! Неплохо, но взгляни на объяснения к ошибкам.",
+    sTrain: "Стоит повторить это упражнение ещё раз.",
+    speakTitle: "Озвучить (второй клик — медленно)"
+  }
+};
+
+const CASE = {
+  acc: { uk: "знахідний (belirtme hâli)", ru: "винительный (belirtme hâli)" },
+  dat: { uk: "давальний (yönelme hâli)", ru: "дательный (yönelme hâli)" },
+  loc: { uk: "місцевий (bulunma hâli)", ru: "местный (bulunma hâli)" },
+  abl: { uk: "вихідний (ayrılma hâli)", ru: "исходный (ayrılma hâli)" }
+};
+
+/* ------------------ питання ------------------ */
+const QUESTIONS = [
+  { sec: "warmup", cs: "acc", pre: "Durakta otobüs", post: " bekliyorum.", opts: ["-ü","-e","-te","-ten"], a: 0,
+    ok: { uk: "Чекаю на що? → знахідний: otobüsü.", ru: "Жду что? → винительный: otobüsü." },
+    tr: { uk: "Я чекаю на автобус на зупинці.", ru: "Я жду автобус на остановке." } },
+  { cs: "acc", pre: "Ben kitab", post: " okuyorum.", opts: ["-a","-ı","-da","-dan"], a: 1,
+    ok: { uk: "Читаю що? → знахідний: kitabı (kitap → kitab, p озвучується).", ru: "Читаю что? → винительный: kitabı (kitap → kitab, p озвончается)." },
+    tr: { uk: "Я читаю книжку.", ru: "Я читаю книгу." } },
+  { cs: "acc", pre: "Pencere", post: " açıyorum.", opts: ["-de","-ye","-yi","-den"], a: 2,
+    ok: { uk: "Відчиняю що? → знахідний. Після e буферне y: pencereyi.", ru: "Открываю что? → винительный. После e буферная y: pencereyi." },
+    tr: { uk: "Я відчиняю вікно.", ru: "Я открываю окно." } },
+  { cs: "acc", pre: "Bu çorba", post: " çok seviyorum.", opts: ["-yı","-ya","-da","-dan"], a: 0,
+    ok: { uk: "Люблю що? → знахідний. Після a буферне y: çorbayı.", ru: "Люблю что? → винительный. После a буферная y: çorbayı." },
+    tr: { uk: "Я дуже люблю цей суп.", ru: "Я очень люблю этот суп." } },
+  { cs: "acc", pre: "Cüzdan", post: " arıyorum.", opts: ["-a","-da","-ı","-dan"], a: 2,
+    ok: { uk: "Шукаю що? → знахідний: cüzdanı.", ru: "Ищу что? → винительный: cüzdanı." },
+    tr: { uk: "Я шукаю гаманець.", ru: "Я ищу кошелёк." } },
+  { cs: "dat", pre: "Her gün okul", post: " gidiyorum.", opts: ["-u","-da","-a","-dan"], a: 2,
+    ok: { uk: "Іду куди? → давальний: okula.", ru: "Иду куда? → дательный: okula." },
+    tr: { uk: "Я щодня ходжу до школи.", ru: "Я каждый день хожу в школу." } },
+  { cs: "dat", pre: "Yazın deniz", post: " gidiyoruz.", opts: ["-de","-e","-i","-den"], a: 1,
+    ok: { uk: "Їдемо куди? → давальний: denize.", ru: "Едем куда? → дательный: denize." },
+    tr: { uk: "Влітку ми їздимо на море.", ru: "Летом мы ездим на море." } },
+  { cs: "dat", pre: "Kediler bahçe", post: " çıkıyor.", opts: ["-de","-yi","-ye","-den"], a: 2,
+    ok: { uk: "Виходять куди? → давальний. Після e буферне y: bahçeye.", ru: "Выходят куда? → дательный. После e буферная y: bahçeye." },
+    tr: { uk: "Коти виходять у сад.", ru: "Кошки выходят в сад." } },
+  { cs: "dat", pre: "Annem market", post: " gidiyor.", opts: ["-te","-e","-i","-ten"], a: 1,
+    ok: { uk: "Іде куди? → давальний: markete.", ru: "Идёт куда? → дательный: markete." },
+    tr: { uk: "Мама йде до магазину.", ru: "Мама идёт в магазин." } },
+  { cs: "dat", pre: "Arkadaşım", post: " hediye alıyorum.", opts: ["-da","-ı","-a","-dan"], a: 2,
+    ok: { uk: "Купую кому? → давальний: arkadaşıma (arkadaş + -ım + -a).", ru: "Покупаю кому? → дательный: arkadaşıma (arkadaş + -ım + -a)." },
+    tr: { uk: "Я купую подарунок своєму другові.", ru: "Я покупаю подарок своему другу." } },
+  { cs: "loc", pre: "Kediler bahçe", post: " oynuyor.", opts: ["-de","-ye","-yi","-den"], a: 0,
+    ok: { uk: "Граються де? → місцевий: bahçede.", ru: "Играют где? → местный: bahçede." },
+    tr: { uk: "Коти граються в саду.", ru: "Кошки играют в саду." } },
+  { cs: "loc", pre: "Dağlar", post: " çok kar var.", opts: ["-a","-ı","-da","-dan"], a: 2,
+    ok: { uk: "Де є сніг? → місцевий: dağlarda.", ru: "Где снег? → местный: dağlarda." },
+    tr: { uk: "У горах багато снігу.", ru: "В горах много снега." } },
+  { cs: "loc", pre: "Annem şimdi market", post: ".", opts: ["-te","-e","-i","-ten"], a: 0,
+    ok: { uk: "Мама де? → місцевий. Після глухого t: markette, а не marketde.", ru: "Мама где? → местный. После глухой t: markette, а не marketde." },
+    tr: { uk: "Мама зараз у магазині.", ru: "Мама сейчас в магазине." } },
+  { cs: "loc", pre: "Öğrenciler okul", post: ".", opts: ["-a","-u","-da","-dan"], a: 2,
+    ok: { uk: "Учні де? → місцевий: okulda.", ru: "Ученики где? → местный: okulda." },
+    tr: { uk: "Учні в школі.", ru: "Ученики в школе." } },
+  { cs: "loc", pre: "Cüzdanım dolmuş", post: " kaldı.", opts: ["-ta","-a","-u","-tan"], a: 0,
+    ok: { uk: "Залишився де? → місцевий. Після глухого ş: dolmuşta.", ru: "Остался где? → местный. После глухой ş: dolmuşta." },
+    tr: { uk: "Мій гаманець залишився в маршрутці.", ru: "Мой кошелёк остался в долмуше." } },
+  { cs: "abl", pre: "Akşam okul", post: " geliyorum.", opts: ["-a","-u","-da","-dan"], a: 3,
+    ok: { uk: "Іду звідки? → вихідний: okuldan.", ru: "Иду откуда? → исходный: okuldan." },
+    tr: { uk: "Увечері я йду зі школи.", ru: "Вечером я иду из школы." } },
+  { cs: "abl", pre: "Annem market", post: " geliyor.", opts: ["-te","-e","-ten","-i"], a: 2,
+    ok: { uk: "Іде звідки? → вихідний. Після глухого t: marketten.", ru: "Идёт откуда? → исходный. После глухой t: marketten." },
+    tr: { uk: "Мама йде з магазину.", ru: "Мама идёт из магазина." } },
+  { cs: "abl", pre: "Deniz", post: " dönüyoruz.", opts: ["-de","-e","-i","-den"], a: 3,
+    ok: { uk: "Повертаємось звідки? → вихідний: denizden.", ru: "Возвращаемся откуда? → исходный: denizden." },
+    tr: { uk: "Ми повертаємось з моря.", ru: "Мы возвращаемся с моря." } },
+  { cs: "abl", pre: "Dağ", post: " iniyoruz.", opts: ["-a","-ı","-da","-dan"], a: 3,
+    ok: { uk: "Спускаємось звідки? → вихідний: dağdan.", ru: "Спускаемся откуда? → исходный: dağdan." },
+    tr: { uk: "Ми спускаємось з гори.", ru: "Мы спускаемся с горы." } },
+  { cs: "abl", pre: "Otobüs durak", post: " kalkıyor.", opts: ["-ta","-a","-tan","-ı"], a: 2,
+    ok: { uk: "Відправляється звідки? → вихідний. Після глухого k: duraktan.", ru: "Отправляется откуда? → исходный. После глухой k: duraktan." },
+    tr: { uk: "Автобус відправляється із зупинки.", ru: "Автобус отправляется с остановки." } },
+  { sec: "main", cs: "acc", pre: "Bu sabah durakta otobüs", post: " uzun süre bekledik.", opts: ["-ü","-e","-te","-ten"], a: 0,
+    ok: { uk: "«otobüs» — прямий додаток (чекали на що?) → знахідний. Після ü за гармонією: otobüsü.", ru: "«otobüs» — прямое дополнение (ждали что?) → винительный. По гармонии после ü: otobüsü." },
+    tr: { uk: "Сьогодні вранці ми довго чекали на автобус на зупинці.", ru: "Сегодня утром мы долго ждали автобус на остановке." } },
+  { cs: "dat", pre: "Hafta sonu ailemle deniz kenarı", post: " gitmek istiyoruz.", opts: ["-nda","-na","-nı","-ndan"], a: 1,
+    ok: { uk: "Рух «куди?» → давальний. «kenarı» вже має присвійний суфікс, тому вставне n: kenarına.", ru: "Движение «куда?» → дательный. У «kenarı» уже есть притяжательный суффикс, поэтому вставная n: kenarına." },
+    tr: { uk: "На вихідних ми з родиною хочемо поїхати на берег моря.", ru: "На выходных мы с семьёй хотим поехать на берег моря." } },
+  { cs: "loc", pre: "Kışın dağlar", post: " çok kar yağıyor.", opts: ["-a","-ı","-da","-dan"], a: 2,
+    ok: { uk: "«Де падає сніг?» → -da/-de. Після твердого a: dağlarda.", ru: "«Где идёт снег?» → -da/-de. После твёрдой a: dağlarda." },
+    tr: { uk: "Взимку в горах падає багато снігу.", ru: "Зимой в горах выпадает много снега." } },
+  { cs: "abl", pre: "Bu hediyeyi en yakın arkadaşım", post: " aldım.", opts: ["-a","-da","-ı","-dan"], a: 3,
+    ok: { uk: "«Від кого отримав?» → вихідний -dan/-den: arkadaşımdan.", ru: "«От кого получил?» → исходный -dan/-den: arkadaşımdan." },
+    tr: { uk: "Цей подарунок я отримав від свого найкращого друга.", ru: "Этот подарок я получил от своего лучшего друга." } },
+  { cs: "acc", pre: "Dün akşam annemin pişirdiği çorba", post: " çok beğendim.", opts: ["-yı","-ya","-da","-dan"], a: 0,
+    ok: { uk: "«beğenmek» вимагає знахідного (сподобалось що?). Після голосного a буферне y: çorbayı.", ru: "«beğenmek» требует винительного (понравилось что?). После гласной a буферная y: çorbayı." },
+    tr: { uk: "Вчора ввечері мені дуже сподобався суп, який приготувала мама.", ru: "Вчера вечером мне очень понравился суп, который приготовила мама." } },
+  { cs: "dat", pre: "Sınavdan sonra bütün öğrenciler bahçe", post: " çıktı.", opts: ["-de","-yi","-ye","-den"], a: 2,
+    ok: { uk: "Рух «куди вийшли?» → -a/-e. Після голосного e буферне y: bahçeye.", ru: "Движение «куда вышли?» → -a/-e. После гласной e буферная y: bahçeye." },
+    tr: { uk: "Після іспиту всі учні вийшли в сад.", ru: "После экзамена все ученики вышли в сад." } },
+  { cs: "loc", pre: "Cüzdanımı sanırım dolmuş", post: " unuttum.", opts: ["-ta","-a","-u","-tan"], a: 0,
+    ok: { uk: "«Де забув?» → місцевий. Після глухого ş суфікс оглушується: dolmuşta, а не dolmuşda.", ru: "«Где забыл?» → местный. После глухой ş суффикс оглушается: dolmuşta, а не dolmuşda." },
+    tr: { uk: "Здається, я забув гаманець у маршрутці.", ru: "Кажется, я забыл кошелёк в долмуше." } },
+  { cs: "abl", pre: "Uçak birazdan Kiev havalimanı", post: " kalkacak.", opts: ["-nda","-na","-ndan","-nı"], a: 2,
+    ok: { uk: "«Звідки вилітає?» → вихідний. Після присвійного суфікса вставне n: havalimanından.", ru: "«Откуда вылетает?» → исходный. После притяжательного суффикса вставная n: havalimanından." },
+    tr: { uk: "Літак незабаром вилетить з київського аеропорту.", ru: "Самолёт скоро вылетит из киевского аэропорта." } },
+  { cs: "acc", pre: "Lütfen pencere", post: " kapat, dışarısı çok soğuk.", opts: ["-de","-ye","-yi","-den"], a: 2,
+    ok: { uk: "Зачини що? Конкретне вікно → знахідний. Після e буферне y: pencereyi.", ru: "Закрой что? Конкретное окно → винительный. После e буферная y: pencereyi." },
+    tr: { uk: "Будь ласка, зачини вікно, надворі дуже холодно.", ru: "Пожалуйста, закрой окно, на улице очень холодно." } },
+  { cs: "dat", pre: "Küçük kardeşim her akşam masal dinlemek için yanım", post: " geliyor.", opts: ["-da","-ı","-dan","-a"], a: 3,
+    ok: { uk: "Приходить «до кого?» → давальний: yanıma (yan + -ım + -a).", ru: "Приходит «к кому?» → дательный: yanıma (yan + -ım + -a)." },
+    tr: { uk: "Мій молодший брат щовечора приходить до мене послухати казку.", ru: "Мой младший брат каждый вечер приходит ко мне послушать сказку." } }
+];
+
+
+/* ------------------ теми ------------------ */
+const T_PLURAL = [
+  { pre: "Bahçede kedi", post: " var.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Останній голосний i (м'який) → -ler: kediler.", ru: "Последняя гласная i (мягкая) → -ler: kediler." },
+    tr: { uk: "У саду є коти.", ru: "В саду есть кошки." } },
+  { pre: "Masada kitap", post: " var.", opts: ["-lar","-ler"], a: 0,
+    ok: { uk: "Останній голосний a (твердий) → -lar: kitaplar.", ru: "Последняя гласная a (твёрдая) → -lar: kitaplar." },
+    tr: { uk: "На столі є книжки.", ru: "На столе есть книги." } },
+  { pre: "Sınıfta öğrenci", post: " var.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Останній голосний i → -ler: öğrenciler.", ru: "Последняя гласная i → -ler: öğrenciler." },
+    tr: { uk: "У класі є учні.", ru: "В классе есть ученики." } },
+  { pre: "Türkiye'de dağ", post: " çok.", opts: ["-lar","-ler"], a: 0,
+    ok: { uk: "Останній голосний a → -lar: dağlar.", ru: "Последняя гласная a → -lar: dağlar." },
+    tr: { uk: "У Туреччині багато гір.", ru: "В Турции много гор." } },
+  { pre: "Ev", post: " büyük.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Голосний e (м'який) → -ler: evler.", ru: "Гласная e (мягкая) → -ler: evler." },
+    tr: { uk: "Будинки великі.", ru: "Дома большие." } },
+  { pre: "Araba", post: " hızlı.", opts: ["-lar","-ler"], a: 0,
+    ok: { uk: "Останній голосний a → -lar: arabalar.", ru: "Последняя гласная a → -lar: arabalar." },
+    tr: { uk: "Машини швидкі.", ru: "Машины быстрые." } },
+  { pre: "Otobüs", post: " kalabalık.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Дивимось на останній голосний: ü (м'який) → -ler: otobüsler.", ru: "Смотрим на последнюю гласную: ü (мягкая) → -ler: otobüsler." },
+    tr: { uk: "Автобуси переповнені.", ru: "Автобусы переполненные." } },
+  { pre: "Kapı", post: " açık.", opts: ["-lar","-ler"], a: 0,
+    ok: { uk: "Останній голосний ı (твердий) → -lar: kapılar.", ru: "Последняя гласная ı (твёрдая) → -lar: kapılar." },
+    tr: { uk: "Двері відчинені.", ru: "Двери открыты." } },
+  { pre: "Gün", post: " kısa.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Голосний ü → -ler: günler.", ru: "Гласная ü → -ler: günler." },
+    tr: { uk: "Дні короткі.", ru: "Дни короткие." } },
+  { pre: "Çiçek", post: " güzel.", opts: ["-lar","-ler"], a: 1,
+    ok: { uk: "Останній голосний e → -ler: çiçekler.", ru: "Последняя гласная e → -ler: çiçekler." },
+    tr: { uk: "Квіти гарні.", ru: "Цветы красивые." } }
+];
+
+const T_VARYOK = [
+  { pre: "Bahçe", post: " kedi var.", opts: ["-de","-da","-te","-ta"], a: 0,
+    ok: { uk: "Де? Після м'якого e і дзвінкого: -de → bahçede.", ru: "Где? После мягкой e и звонкого: -de → bahçede." },
+    tr: { uk: "У саду є кіт.", ru: "В саду есть кошка." } },
+  { pre: "Masa", post: " kitap yok.", opts: ["-de","-da","-te","-ta"], a: 1,
+    ok: { uk: "Твердий a → -da: masada.", ru: "Твёрдая a → -da: masada." },
+    tr: { uk: "На столі немає книжки.", ru: "На столе нет книги." } },
+  { pre: "Sınıf", post: " öğrenci var.", opts: ["-de","-da","-te","-ta"], a: 3,
+    ok: { uk: "Твердий ı + глухий f → -ta: sınıfta.", ru: "Твёрдая ı + глухая f → -ta: sınıfta." },
+    tr: { uk: "У класі є учні.", ru: "В классе есть ученики." } },
+  { pre: "Park", post: " çocuklar var.", opts: ["-de","-da","-te","-ta"], a: 3,
+    ok: { uk: "Твердий a + глухий k → -ta: parkta.", ru: "Твёрдая a + глухая k → -ta: parkta." },
+    tr: { uk: "У парку є діти.", ru: "В парке есть дети." } },
+  { pre: "Ev", post: " kimse yok.", opts: ["-de","-da","-te","-ta"], a: 0,
+    ok: { uk: "М'який e + дзвінкий v → -de: evde.", ru: "Мягкая e + звонкая v → -de: evde." },
+    tr: { uk: "Вдома нікого немає.", ru: "Дома никого нет." } },
+  { pre: "Çanta", post: " cüzdan var.", opts: ["-de","-da","-te","-ta"], a: 1,
+    ok: { uk: "Твердий a, дзвінкий кінець → -da: çantada.", ru: "Твёрдая a, звонкий конец → -da: çantada." },
+    tr: { uk: "У сумці є гаманець.", ru: "В сумке есть кошелёк." } },
+  { pre: "Sokak", post: " araba çok.", opts: ["-de","-da","-te","-ta"], a: 3,
+    ok: { uk: "Твердий a + глухий k → -ta: sokakta.", ru: "Твёрдая a + глухая k → -ta: sokakta." },
+    tr: { uk: "На вулиці багато машин.", ru: "На улице много машин." } },
+  { pre: "Dolap", post: " süt yok.", opts: ["-de","-da","-te","-ta"], a: 3,
+    ok: { uk: "Твердий a + глухий p → -ta: dolapta.", ru: "Твёрдая a + глухая p → -ta: dolapta." },
+    tr: { uk: "У шафі немає молока.", ru: "В шкафу нет молока." } },
+  { pre: "Deniz", post: " balık var.", opts: ["-de","-da","-te","-ta"], a: 0,
+    ok: { uk: "М'який i + дзвінкий z → -de: denizde.", ru: "Мягкая i + звонкая z → -de: denizde." },
+    tr: { uk: "У морі є риба.", ru: "В море есть рыба." } },
+  { pre: "Okul", post: " kütüphane var.", opts: ["-de","-da","-te","-ta"], a: 1,
+    ok: { uk: "Твердий u + дзвінкий l → -da: okulda.", ru: "Твёрдая u + звонкая l → -da: okulda." },
+    tr: { uk: "У школі є бібліотека.", ru: "В школе есть библиотека." } }
+];
+
+const VOCAB1 = [
+  { w: "kedi",    e: "🐱", tr: { uk: "кіт",      ru: "кошка" } },
+  { w: "kitap",   e: "📖", tr: { uk: "книжка",   ru: "книга" } },
+  { w: "otobüs",  e: "🚌", tr: { uk: "автобус",  ru: "автобус" } },
+  { w: "çorba",   e: "🍲", tr: { uk: "суп",      ru: "суп" } },
+  { w: "cüzdan",  e: "👛", tr: { uk: "гаманець", ru: "кошелёк" } },
+  { w: "pencere", e: "🪟", tr: { uk: "вікно",    ru: "окно" } },
+  { w: "dağ",     e: "⛰️", tr: { uk: "гора",     ru: "гора" } },
+  { w: "deniz",   e: "🌊", tr: { uk: "море",     ru: "море" } },
+  { w: "çiçek",   e: "🌸", tr: { uk: "квітка",   ru: "цветок" } },
+  { w: "ev",      e: "🏠", tr: { uk: "дім",      ru: "дом" } }
+];
+
+const TOPICS = [
+  { id: "vocab1", level: "a1", type: "vocab",
+    name: { uk: "Словник у картинках · 10 слів", ru: "Словарь в картинках · 10 слов" },
+    desc: { uk: "Спочатку запам'ятай слова з картинками, потім обери слово до картинки.", ru: "Сначала запомни слова с картинками, потом выбери слово к картинке." },
+    words: VOCAB1 },
+  { id: "plural", level: "a1",
+    name: { uk: "Множина · -lar / -ler", ru: "Множественное число · -lar / -ler" },
+    desc: { uk: "10 питань на гармонію голосних: коли -lar, а коли -ler.", ru: "10 вопросов на гармонию гласных: когда -lar, а когда -ler." },
+    tag: { uk: "множина (çoğul)", ru: "множественное число (çoğul)" },
+    secTitle: { uk: "Вправа", ru: "Упражнение" },
+    secSub: { uk: "Дивись на останній голосний слова: a, ı, o, u → -lar; e, i, ö, ü → -ler.", ru: "Смотри на последнюю гласную слова: a, ı, o, u → -lar; e, i, ö, ü → -ler." },
+    questions: T_PLURAL },
+  { id: "varyok", level: "a1",
+    name: { uk: "Var / Yok + місцевий -de / -da", ru: "Var / Yok + местный -de / -da" },
+    desc: { uk: "10 питань: «десь щось є / немає». Плюс глухі приголосні Fıstıkçı Şahap.", ru: "10 вопросов: «где-то что-то есть / нет». Плюс глухие согласные Fıstıkçı Şahap." },
+    tag: { uk: "місцевий (bulunma hâli)", ru: "местный (bulunma hâli)" },
+    secTitle: { uk: "Вправа", ru: "Упражнение" },
+    secSub: { uk: "Голосна: тверда → -da, м'яка → -de. Після глухих f, s, t, k, ç, ş, h, p («Fıstıkçı Şahap») d стає t.", ru: "Гласная: твёрдая → -da, мягкая → -de. После глухих f, s, t, k, ç, ş, h, p («Fıstıkçı Şahap») d становится t." },
+    questions: T_VARYOK },
+  { id: "cases", level: "a2",
+    name: { uk: "Відмінки · Hâl ekleri", ru: "Падежи · Hâl ekleri" },
+    desc: { uk: "30 питань: знахідний, давальний, місцевий, вихідний відмінки. Розминка + основний рівень.", ru: "30 вопросов: винительный, дательный, местный, исходный. Разминка + основной уровень." },
+    multi: true,
+    questions: QUESTIONS }
+];
+
+/* ------------------ стан ------------------ */
+let LANG = null;
+try { LANG = localStorage.getItem('tq_lang'); } catch (e) {}
+const t = k => I18N[LANG || 'uk'][k];
+
+function loadBest() {
+  try { return JSON.parse(localStorage.getItem('tq_best') || '{}'); } catch (e) { return {}; }
+}
+function saveBest(id, sc) {
+  try {
+    const b = loadBest();
+    if (!(id in b) || sc > b[id]) { b[id] = sc; localStorage.setItem('tq_best', JSON.stringify(b)); }
+  } catch (e) {}
+}
+function topicTotal(tp) { return tp.type === 'vocab' ? tp.words.length : tp.questions.length; }
+
+/* ------------------ озвучка ------------------ */
+const ttsOk = 'speechSynthesis' in window;
+if (!ttsOk) document.documentElement.classList.add('no-tts');
+let lastSpeakBtn = null;
+let trVoice = null;
+function pickVoice() {
+  if (!ttsOk) return;
+  const voices = window.speechSynthesis.getVoices().filter(v => v.lang && v.lang.toLowerCase().startsWith('tr'));
+  if (!voices.length) { trVoice = null; return; }
+  // рейтинг: натуральні онлайн-голоси > Google > локальні > решта
+  const rank = v => {
+    const n = (v.name || '').toLowerCase();
+    if (n.includes('natural')) return 4;
+    if (n.includes('google')) return 3;
+    if (n.includes('online')) return 2;
+    return 1;
+  };
+  voices.sort((a, b) => rank(b) - rank(a));
+  trVoice = voices[0];
+}
+if (ttsOk) { pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text, rate) {
+  if (!ttsOk) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'tr-TR';
+  if (trVoice) u.voice = trVoice;
+  u.rate = rate;
+  window.speechSynthesis.speak(u);
+}
+
+/* ------------------ навігація ------------------ */
+const screens = {
+  lang: document.getElementById('screen-lang'),
+  home: document.getElementById('screen-home'),
+  topics: document.getElementById('screen-topics'),
+  quiz: document.getElementById('screen-quiz')
+};
+const backBtn = document.getElementById('backBtn');
+const nazarRow = document.getElementById('nazarRow');
+let curLevel = 'a1';
+let curTopic = null;
+
+function route() {
+  if (!LANG) return { s: 'lang' };
+  const h = location.hash.slice(1);
+  if (h === 'a1' || h === 'a2') return { s: 'topics', level: h };
+  if (h.indexOf('q-') === 0) {
+    const tp = TOPICS.find(x => x.id === h.slice(2));
+    if (tp) return { s: 'quiz', topic: tp };
+  }
+  return { s: 'home' };
+}
+
+function countLabel(n) {
+  if (LANG === 'ru') return n + ' ' + (n === 1 ? 'тема' : n < 5 ? 'темы' : 'тем');
+  return n + ' ' + (n === 1 ? 'тема' : n < 5 ? 'теми' : 'тем');
+}
+
+function renderTopics(level) {
+  const grid = document.getElementById('topicGrid');
+  grid.innerHTML = '';
+  TOPICS.filter(x => x.level === level).forEach(tp => {
+    const b = document.createElement('button');
+    b.className = 'choice';
+    const bests = loadBest();
+    const bestLine = (tp.id in bests)
+      ? '<span class="c-best">🏆 ' + bests[tp.id] + ' / ' + topicTotal(tp) + '</span>' : '';
+    b.innerHTML = '<span class="c-title">' + tp.name[LANG] + '</span>' +
+                  '<span class="c-desc">' + tp.desc[LANG] + '</span>' + bestLine;
+    b.addEventListener('click', () => { location.hash = 'q-' + tp.id; });
+    grid.appendChild(b);
+  });
+}
+
+function show(r) {
+  Object.values(screens).forEach(s => s.classList.remove('active'));
+  screens[r.s].classList.add('active');
+  backBtn.classList.toggle('show', r.s === 'topics' || r.s === 'quiz');
+  nazarRow.classList.toggle('show', r.s === 'quiz');
+
+  if (r.s === 'topics') { curLevel = r.level; renderTopics(r.level); }
+  document.querySelector('.shuffle-bar').style.display = (r.s === 'quiz' && r.topic.type === 'vocab') ? 'none' : '';
+  if (r.s === 'quiz') {
+    curLevel = r.topic.level;
+    if (curTopic !== r.topic || !quizBuilt) { curTopic = r.topic; renderQuiz(false); }
+  }
+
+  document.body.classList.toggle('wide', r.s !== 'quiz');
+  const hero = document.getElementById('hero');
+  const bar = document.getElementById('barTitle');
+  const brandHTML = 'Türkçe Quiz<span class="tr">.</span>';
+  if (r.s === 'lang' || r.s === 'home') {
+    hero.style.display = '';
+    bar.innerHTML = brandHTML;
+    document.getElementById('hSub').textContent = r.s === 'lang' ? t('sub_lang') : t('sub_home');
+  } else {
+    hero.style.display = 'none';
+    bar.textContent = r.s === 'topics'
+      ? r.level.toUpperCase() + ' · ' + t('sub_topics')
+      : curTopic.name[LANG];
+  }
+
+  applyI18n();
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i]').forEach(el => { el.textContent = t(el.dataset.i); });
+  document.getElementById('a1badge').textContent = countLabel(TOPICS.filter(x => x.level === 'a1').length);
+  document.getElementById('a2badge').textContent = countLabel(TOPICS.filter(x => x.level === 'a2').length);
+  document.getElementById('restart').textContent = t('restart');
+  document.getElementById('finishMix').textContent = t('mixBtn');
+  document.getElementById('globalMix').textContent = t('globalMix');
+  document.querySelectorAll('#langBar button').forEach(b => b.classList.toggle('on', b.dataset.lang === LANG));
+}
+
+window.addEventListener('hashchange', () => { show(route()); });
+function quizInProgress() {
+  if (!curTopic) return false;
+  if (curTopic.type === 'vocab') {
+    return vState && vState.started && vState.stage !== 'done';
+  }
+  if (!sections.length) return false;
+  const any = sections.some(s => s.answered > 0);
+  const all = sections.every(s => s.answered === (s.cur ? s.cur.length : s.base.length));
+  return any && !all;
+}
+
+function showLeaveModal(onLeave) {
+  const back = document.createElement('div');
+  back.className = 'modal-back';
+  back.innerHTML =
+    '<div class="modal">' +
+      '<div class="m-title">' + t('leaveTitle') + '</div>' +
+      '<p class="m-text">' + t('leaveText') + '</p>' +
+      '<div class="m-btns">' +
+        '<button class="btn-restart m-stay">' + t('leaveStay') + '</button>' +
+        '<button class="btn-shuffle m-go">' + t('leaveGo') + '</button>' +
+      '</div>' +
+    '</div>';
+  back.querySelector('.m-stay').addEventListener('click', () => back.remove());
+  back.querySelector('.m-go').addEventListener('click', () => { back.remove(); onLeave(); });
+  back.addEventListener('click', e => { if (e.target === back) back.remove(); });
+  document.body.appendChild(back);
+}
+
+backBtn.addEventListener('click', () => {
+  const r = route();
+  if (r.s === 'quiz') {
+    if (quizInProgress()) {
+      showLeaveModal(() => { quizBuilt = false; location.hash = curLevel; });
+      return;
+    }
+    location.hash = curLevel;
+  } else {
+    location.hash = '';
+  }
+});
+
+document.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => {
+  LANG = b.dataset.pick;
+  try { localStorage.setItem('tq_lang', LANG); } catch (e) {}
+  quizBuilt = false;
+  location.hash = '';
+  show(route());
+}));
+document.querySelectorAll('[data-level]').forEach(b => b.addEventListener('click', () => {
+  location.hash = b.dataset.level;
+}));
+document.querySelectorAll('#langBar button').forEach(b => b.addEventListener('click', () => {
+  if (b.dataset.lang === LANG) return;
+  LANG = b.dataset.lang;
+  try { localStorage.setItem('tq_lang', LANG); } catch (e) {}
+  quizBuilt = false;
+  show(route());
+}));
+
+/* ------------------ квіз ------------------ */
+const quizEl = document.getElementById('quiz');
+const finishEl = document.getElementById('finish');
+let sections = [], dots = [], total = 0, quizBuilt = false, streak = 0;
+
+const CONF_COLORS = ['#22418F', '#17A398', '#D64545', '#F2B705', '#7FD9D0'];
+function celebrate(n) {
+  if (!n) return;
+  const box = document.createElement('div');
+  box.className = 'confetti-box';
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement('span');
+    p.className = 'confetti-piece';
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.background = CONF_COLORS[i % CONF_COLORS.length];
+    p.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+    p.style.animationDelay = (Math.random() * 0.6) + 's';
+    p.style.width = (7 + Math.random() * 7) + 'px';
+    p.style.height = (10 + Math.random() * 8) + 'px';
+    box.appendChild(p);
+  }
+  // салюти: кілька вибухів іскор у верхній частині екрана
+  const bursts = n >= 120 ? 5 : n >= 80 ? 3 : 2;
+  for (let f = 0; f < bursts; f++) {
+    const cx = 12 + Math.random() * 76;
+    const cy = 12 + Math.random() * 30;
+    const color = CONF_COLORS[Math.floor(Math.random() * CONF_COLORS.length)];
+    for (let s = 0; s < 16; s++) {
+      const sp = document.createElement('span');
+      sp.className = 'fw-spark';
+      sp.style.left = cx + 'vw';
+      sp.style.top = cy + 'vh';
+      sp.style.background = color;
+      const ang = (Math.PI * 2 * s) / 16 + Math.random() * 0.4;
+      const dist = 55 + Math.random() * 75;
+      sp.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+      sp.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+      sp.style.animationDelay = (0.25 + f * 0.45) + 's';
+      box.appendChild(sp);
+    }
+  }
+  document.body.appendChild(box);
+  setTimeout(() => box.remove(), 4200);
+}
+
+function confettiFor(sc, n) { return sc === n ? 140 : sc >= n * 0.9 ? 90 : sc >= n * 0.6 ? 40 : 0; }
+
+const PERFECT = {
+  uk: [
+    "Стоп-стоп… Скажіть чесно: ви робот? 🤖 Бо жива людина ТАК ідеально не відповідає!",
+    "10 з 10?! Скажіть чесно: ви ж турок, і це ваша рідна мова? 🧿 Бо ТАК відповідають тільки носії!",
+    "Так ідеально, що навіть Google Перекладач попросився до вас на урок 😄",
+    "Нуль помилок. НУЛЬ. Öğretmen у шоці, підручник плаче від гордості 😭👏",
+    "Це було так ідеально, що конфеті засоромилось і попросило добавки 🎉",
+    "Ви щойно склали цей квіз краще, ніж він сам себе знає. Helal olsun! 💪"
+  ],
+  ru: [
+    "Стоп-стоп… Признавайтесь честно: вы робот? 🤖 Живой человек ТАК идеально не отвечает!",
+    "10 из 10?! Скажите честно: вы же турок, и это ваш родной язык? 🧿 Потому что ТАК отвечают только носители!",
+    "Так идеально, что даже Google Переводчик попросился к вам на урок 😄",
+    "Ноль ошибок. НОЛЬ. Öğretmen в шоке, учебник плачет от гордости 😭👏",
+    "Это было так идеально, что конфетти застеснялось и попросило добавки 🎉",
+    "Вы только что прошли этот квиз лучше, чем он сам себя знает. Helal olsun! 💪"
+  ]
+};
+function perfectPraise() {
+  const list = PERFECT[LANG] || PERFECT.uk;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+const PHRASES = {
+  harika: {
+    uk: [
+      "Harika! Ще трошки — і досконалість 🌟",
+      "Майже ідеально! Помилки вас бояться 💪",
+      "Süper! Одна дрібничка — і було б 10 з 10.",
+      "Чудовий результат! Турецька вам явно пасує 🧿"
+    ],
+    ru: [
+      "Harika! Ещё чуть-чуть — и совершенство 🌟",
+      "Почти идеально! Ошибки вас боятся 💪",
+      "Süper! Одна мелочь — и было бы 10 из 10.",
+      "Отличный результат! Турецкий вам явно к лицу 🧿"
+    ]
+  },
+  iyi: {
+    uk: [
+      "İyi! Гарна робота — глянь пояснення до помилок, і буде ще краще.",
+      "Непогано! Ще один прохід — і результат злетить 🚀",
+      "Fena değil! Помилки — це просто майбутні правильні відповіді.",
+      "Хороший темп! Помилки вище — найцікавіша частина уроку 😉"
+    ],
+    ru: [
+      "İyi! Хорошая работа — взгляни на объяснения к ошибкам, и будет ещё лучше.",
+      "Неплохо! Ещё один заход — и результат взлетит 🚀",
+      "Fena değil! Ошибки — это просто будущие правильные ответы.",
+      "Хороший темп! Ошибки выше — самая интересная часть урока 😉"
+    ]
+  },
+  train: {
+    uk: [
+      "Складна тема? Нічого, розкусимо її разом 💪",
+      "Yavaş yavaş! Повільно — значить надійно. Ще одне коло?",
+      "Перший млинець — не страшно. Пояснення вище вже чекають!",
+      "Кожна помилка тут — маленький урок. Спробуй ще раз 🧿"
+    ],
+    ru: [
+      "Сложная тема? Ничего, раскусим её вместе 💪",
+      "Yavaş yavaş! Медленно — значит надёжно. Ещё один круг?",
+      "Первый блин — не страшно. Объяснения выше уже ждут!",
+      "Каждая ошибка здесь — маленький урок. Попробуй ещё раз 🧿"
+    ]
+  }
+};
+function tierPhrase(tier) {
+  const list = PHRASES[tier][LANG] || PHRASES[tier].uk;
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function shuffle(arr) {
+  const copy = arr.slice();
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+function buildSections(mixed) {
+  const qs = curTopic.questions;
+  if (mixed) return [{ title: t('mixTitle'), sub: t('mixSub'), base: shuffle(qs) }];
+  if (!curTopic.multi) {
+    return [{ title: curTopic.secTitle[LANG], sub: curTopic.secSub[LANG], base: qs.slice() }];
+  }
+  const secs = [];
+  qs.forEach(q => {
+    if (q.sec === "warmup") secs.push({ title: t('warmupTitle'), sub: t('warmupSub'), base: [] });
+    if (q.sec === "main") secs.push({ title: t('mainTitle'), sub: t('mainSub'), base: [] });
+    secs[secs.length - 1].base.push(q);
+  });
+  return secs;
+}
+
+function globalScore() { return sections.reduce((s, x) => s + x.correct, 0); }
+function runTotal() {
+  return sections.reduce((a, x) => a + (x.cur ? x.cur.length : x.base.length), 0);
+}
+function updatePill() {
+  const pill = document.getElementById('scorePill');
+  if (pill) pill.textContent = globalScore() + ' / ' + runTotal() + (streak >= 3 ? ' · 🔥' + streak : '');
+}
+function checkAllDone() {
+  const allDone = sections.every(s => s.answered === (s.cur ? s.cur.length : s.base.length));
+  if (allDone) {
+    const n = runTotal(), sc = globalScore();
+    const fullRun = sections.every(s => !s.cur || s.cur.length === s.base.length);
+    if (fullRun) saveBest(curTopic.id, sc);
+    document.getElementById('finalScore').textContent = sc + ' / ' + n;
+    document.getElementById('finalText').textContent =
+      sc === n ? perfectPraise() : sc >= n * 0.9 ? tierPhrase('harika') : sc >= n * 0.6 ? tierPhrase('iyi') : tierPhrase('train');
+    finishEl.classList.add('show');
+  } else {
+    finishEl.classList.remove('show');
+  }
+}
+function sectionVerdict(sc, n) {
+  if (sc === n) return perfectPraise();
+  return sc >= n * 0.9 ? tierPhrase('harika') : sc >= n * 0.6 ? tierPhrase('iyi') : tierPhrase('train');
+}
+
+function renderSection(s, items) {
+  s.correct = 0; s.answered = 0;
+  s.cur = items;
+  s.wrong = [];
+  for (let k = s.start; k < s.start + s.base.length; k++) dots[k].classList.remove('ok', 'bad');
+  updatePill();
+  checkAllDone();
+
+  const box = document.createElement('div');
+  if (s.el) s.el.replaceWith(box); else quizEl.appendChild(box);
+  s.el = box;
+
+  const head = document.createElement('div');
+  head.className = 'section-head';
+  head.innerHTML = '<h2>' + s.title + '</h2><p>' + s.sub + '</p>';
+  box.appendChild(head);
+
+  items.forEach((q, k) => {
+    const qi = s.start + k;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<p class="tag"></p>' +
+      '<p class="sentence"><span class="num">' + (qi + 1) + '.</span> ' + q.pre + '<b>___</b>' + q.post +
+        ' <button class="speak" aria-label="🔊" title="' + t('speakTitle') + '">🔊</button></p>' +
+      '<div class="opts">' + q.opts.map((o, i) => '<button data-o="' + i + '">' + o + '</button>').join('') + '</div>' +
+      '<p class="fb"></p>' +
+      '<p class="tr-line">→ ' + q.tr[LANG] + '</p>';
+    box.appendChild(card);
+
+    const fb = card.querySelector('.fb');
+    const trl = card.querySelector('.tr-line');
+    const buttons = card.querySelectorAll('.opts button');
+
+    const speakBtn = card.querySelector('.speak');
+    speakBtn.addEventListener('click', () => {
+      if (!ttsOk) return;
+      const done = card.dataset.done;
+      const text = done ? q.pre + q.opts[q.a].replace('-', '') + q.post : q.pre + ', ' + q.post.trim();
+      const slow = window.speechSynthesis.speaking && lastSpeakBtn === speakBtn;
+      lastSpeakBtn = speakBtn;
+      speak(text, slow ? 0.6 : 0.95);
+    });
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (card.dataset.done) return;
+        card.dataset.done = "1";
+        s.answered++;
+        const isOk = +btn.dataset.o === q.a;
+        if (isOk) { s.correct++; streak++; } else { streak = 0; s.wrong.push(q); }
+
+        buttons.forEach(b => {
+          b.disabled = true;
+          if (+b.dataset.o === q.a) b.classList.add('ok');
+          else if (b === btn) b.classList.add('bad');
+        });
+
+        const tag = card.querySelector('.tag');
+        tag.textContent = q.cs ? CASE[q.cs][LANG] : curTopic.tag[LANG];
+        tag.classList.add('show');
+
+        const blank = card.querySelector('.sentence b');
+        blank.textContent = q.opts[q.a].replace('-', '');
+        blank.classList.add('filled');
+
+        fb.textContent = (isOk ? 'Doğru! ' : 'Maalesef. ') + q.ok[LANG];
+        fb.classList.add('show', isOk ? 'good' : 'wrong');
+        trl.classList.add('show');
+
+        dots[qi].classList.add(isOk ? 'ok' : 'bad');
+        updatePill();
+
+        if (s.answered === s.cur.length) {
+          result.querySelector('.sec-score').textContent = s.title + ': ' + s.correct + ' / ' + s.cur.length;
+          result.querySelector('.sec-text').textContent = sectionVerdict(s.correct, s.cur.length);
+          const mBtn = result.querySelector('.sec-mist');
+          if (s.wrong.length) {
+            mBtn.style.display = 'inline-block';
+            mBtn.textContent = t('mistakesBtn') + ' (' + s.wrong.length + ')';
+          } else {
+            mBtn.style.display = 'none';
+          }
+          result.classList.add('show');
+          celebrate(confettiFor(s.correct, s.cur.length));
+          checkAllDone();
+        }
+      });
+    });
+  });
+
+  const result = document.createElement('div');
+  result.className = 'sec-result';
+  result.innerHTML =
+    '<div class="sec-score"></div>' +
+    '<p class="sec-text"></p>' +
+    '<div class="sec-btns">' +
+      '<button class="btn-restart sec-again">' + t('again') + '</button>' +
+      '<button class="btn-shuffle sec-mist" style="display:none"></button>' +
+      '<button class="btn-shuffle sec-mix">' + t('mixBtn') + '</button>' +
+    '</div>';
+  box.appendChild(result);
+
+  result.querySelector('.sec-again').addEventListener('click', () => {
+    renderSection(s, s.base);
+    if (s.el.scrollIntoView) s.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  result.querySelector('.sec-mix').addEventListener('click', () => {
+    renderSection(s, shuffle(s.base));
+    if (s.el.scrollIntoView) s.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  result.querySelector('.sec-mist').addEventListener('click', () => {
+    renderSection(s, s.wrong.slice());
+    if (s.el.scrollIntoView) s.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+}
+
+function vocabMedia(item) {
+  const box = document.createElement('div');
+  box.className = 'vmedia';
+  const img = document.createElement('img');
+  img.alt = item.w;
+  img.src = 'img/' + item.w.toLowerCase().replace('ç','c').replace('ö','o').replace('ü','u').replace('ğ','g').replace('ş','s').replace('ı','i') + '.jpg';
+  img.addEventListener('error', () => {
+    const em = document.createElement('div');
+    em.className = 'vemoji';
+    em.textContent = item.e;
+    img.replaceWith(em);
+  });
+  box.appendChild(img);
+  return box;
+}
+
+let vState = null;
+
+function renderVocab() {
+  vState = { stage: 'learn', started: false };
+  quizBuilt = true;
+  streak = 0;
+  quizEl.innerHTML = '';
+  finishEl.classList.remove('show');
+  sections = [];
+  const words = curTopic.words;
+  total = words.length;
+
+  nazarRow.innerHTML = Array.from({ length: total }, () => '<span class="nazar"></span>').join('')
+    + '<span class="score-pill" id="scorePill">0 / ' + total + '</span>';
+  dots = nazarRow.querySelectorAll('.nazar');
+
+  let idx = 0;
+  const seen = new Set();
+
+  function learnCard() {
+    if (idx > 0) vState.started = true;
+    seen.add(idx);
+    quizEl.innerHTML = '';
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = '<h2>' + t('vLearnTitle') + '</h2><p>' + t('vLearnSub') + '</p>';
+    quizEl.appendChild(head);
+
+    const item = words[idx];
+    const card = document.createElement('div');
+    card.className = 'card vcard';
+
+    const nav = document.createElement('div');
+    nav.className = 'vnav';
+    words.forEach((_, k) => {
+      const b = document.createElement('button');
+      b.textContent = k + 1;
+      if (seen.has(k)) b.classList.add('seen');
+      if (k === idx) b.classList.add('cur');
+      b.addEventListener('click', () => { idx = k; learnCard(); });
+      nav.appendChild(b);
+    });
+    card.appendChild(nav);
+    card.appendChild(vocabMedia(item));
+    const w = document.createElement('div');
+    w.className = 'vword';
+    w.innerHTML = item.w + ' <button class="speak" aria-label="🔊" title="' + t('speakTitle') + '">🔊</button>';
+    card.appendChild(w);
+    const trn = document.createElement('p');
+    trn.className = 'vtrans';
+    trn.textContent = item.tr[LANG];
+    card.appendChild(trn);
+    const next = document.createElement('button');
+    next.className = 'btn-restart';
+    next.textContent = idx === total - 1 ? t('vStart') : t('vNext');
+    card.appendChild(next);
+    quizEl.appendChild(card);
+
+    w.querySelector('.speak').addEventListener('click', () => {
+      const slow = ttsOk && window.speechSynthesis.speaking;
+      speak(item.w, slow ? 0.6 : 0.9);
+    });
+    if (ttsOk) speak(item.w, 0.9);
+
+    next.addEventListener('click', () => {
+      idx++;
+      if (idx < total) learnCard(); else startTest();
+    });
+  }
+
+  let order = [], ti = 0, correct = 0;
+
+  let wrongWords = [];
+  function startTest(list) {
+    vState.stage = 'test'; vState.started = true;
+    order = shuffle(list || words);
+    wrongWords = [];
+    ti = 0; correct = 0;
+    dots.forEach((dd, k) => { dd.classList.remove('ok', 'bad'); dd.style.display = k < order.length ? '' : 'none'; });
+    updateVPill();
+    testCard();
+  }
+  function updateVPill() {
+    const pill = document.getElementById('scorePill');
+    if (pill) pill.textContent = correct + ' / ' + order.length + (streak >= 3 ? ' · 🔥' + streak : '');
+  }
+
+  function testCard() {
+    quizEl.innerHTML = '';
+    const head = document.createElement('div');
+    head.className = 'section-head';
+    head.innerHTML = '<h2>' + t('vTestTitle') + '</h2><p>' + t('vTestSub') + '</p>';
+    quizEl.appendChild(head);
+
+    const item = order[ti];
+    const card = document.createElement('div');
+    card.className = 'card vcard';
+    card.innerHTML = '<p class="vcount">' + (ti + 1) + ' / ' + total + '</p>';
+    card.appendChild(vocabMedia(item));
+
+    const distractors = shuffle(words.filter(x => x.w !== item.w)).slice(0, 3);
+    const opts = shuffle([item].concat(distractors));
+    const grid = document.createElement('div');
+    grid.className = 'opts vopts';
+    opts.forEach(o => {
+      const b = document.createElement('button');
+      b.textContent = o.w;
+      b.addEventListener('click', () => {
+        if (card.dataset.done) return;
+        card.dataset.done = "1";
+        const isOk = o.w === item.w;
+        if (isOk) { correct++; streak++; } else { streak = 0; wrongWords.push(item); }
+        grid.querySelectorAll('button').forEach(x => {
+          x.disabled = true;
+          if (x.textContent === item.w) x.classList.add('ok');
+          else if (x === b) x.classList.add('bad');
+        });
+        fb.textContent = (isOk ? 'Doğru! ' : 'Maalesef. ') + item.w + ' — ' + item.tr[LANG];
+        fb.classList.add('show', isOk ? 'good' : 'wrong');
+        dots[ti].classList.add(isOk ? 'ok' : 'bad');
+        updateVPill();
+        if (ttsOk) speak(item.w, 0.9);
+        next.style.display = 'inline-block';
+      });
+      grid.appendChild(b);
+    });
+    card.appendChild(grid);
+
+    const fb = document.createElement('p');
+    fb.className = 'fb';
+    card.appendChild(fb);
+
+    const next = document.createElement('button');
+    next.className = 'btn-restart';
+    next.style.display = 'none';
+    next.style.marginTop = '16px';
+    next.textContent = t('vNext');
+    next.addEventListener('click', () => {
+      ti++;
+      if (ti < total) testCard(); else vocabResult();
+    });
+    card.appendChild(next);
+    quizEl.appendChild(card);
+  }
+
+  function vocabResult() {
+    vState.stage = 'done';
+    if (order.length === words.length) saveBest(curTopic.id, correct);
+    quizEl.innerHTML = '';
+    const res = document.createElement('div');
+    res.className = 'sec-result show';
+    const mist = wrongWords.length
+      ? '<button class="btn-shuffle v-mist">' + t('mistakesBtn') + ' (' + wrongWords.length + ')</button>' : '';
+    res.innerHTML =
+      '<div class="sec-score">' + t('vResult') + ': ' + correct + ' / ' + order.length + '</div>' +
+      '<p class="sec-text">' + sectionVerdict(correct, order.length) + '</p>' +
+      '<div class="sec-btns"><button class="btn-restart v-again">' + t('again') + '</button>' + mist + '</div>';
+    res.querySelector('.v-again').addEventListener('click', () => renderVocab());
+    if (wrongWords.length) {
+      res.querySelector('.v-mist').addEventListener('click', () => startTest(wrongWords.slice()));
+    }
+    quizEl.appendChild(res);
+    celebrate(confettiFor(correct, order.length));
+  }
+
+  learnCard();
+}
+
+function renderQuiz(mixed) {
+  if (curTopic.type === 'vocab') { renderVocab(); return; }
+  quizBuilt = true;
+  streak = 0;
+  quizEl.innerHTML = '';
+  finishEl.classList.remove('show');
+
+  sections = buildSections(mixed);
+  let gi = 0;
+  sections.forEach(s => { s.start = gi; gi += s.base.length; s.el = null; });
+  total = gi;
+
+  nazarRow.innerHTML = Array.from({ length: total }, () => '<span class="nazar"></span>').join('')
+    + '<span class="score-pill" id="scorePill">0 / ' + total + '</span>';
+  dots = nazarRow.querySelectorAll('.nazar');
+
+  sections.forEach(s => renderSection(s, s.base));
+}
+
+document.getElementById('restart').addEventListener('click', () => {
+  renderQuiz(false);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.getElementById('finishMix').addEventListener('click', () => {
+  renderQuiz(true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+document.getElementById('globalMix').addEventListener('click', () => {
+  renderQuiz(true);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ------------------ PWA ------------------ */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+const heroImg = document.getElementById('heroImg');
+heroImg.addEventListener('error', () => {
+  document.getElementById('heroMedia').classList.add('off');
+});
+
+/* ------------------ старт ------------------ */
+show(route());
+</script>
+</body>
+</html>
