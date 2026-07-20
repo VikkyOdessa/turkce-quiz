@@ -520,6 +520,18 @@
   .st2 { background: var(--turquoise-soft); color: #0B6B63; }
   .dict-card { border-style: dashed; }
 
+  .toast {
+    position: fixed; left: 50%; bottom: 28px;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--cobalt-deep); color: #fff;
+    font-size: 15px; font-weight: 600;
+    padding: 12px 22px; border-radius: 100px;
+    box-shadow: 0 8px 24px rgba(22, 41, 92, .35);
+    opacity: 0; transition: all .35s ease;
+    z-index: 300; max-width: 90vw; text-align: center;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
   .modal-back {
     position: fixed; inset: 0; background: rgba(28,35,51,.5);
     display: flex; align-items: center; justify-content: center;
@@ -2355,64 +2367,104 @@ function celebrate(n) {
 
 /* Шеринг результату: летить ПОСИЛАННЯ на сайт (розгорнеться карткою через OG-теги) */
 const SITE_URL = 'https://vikkyodessa.github.io/turkce-quiz/';
+
+/* Копіювання, що працює скрізь: сучасний API + фолбек через textarea */
+function copyToClipboard(txt) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).catch(() => copyFallback(txt));
+  } else {
+    copyFallback(txt);
+  }
+}
+function copyFallback(txt) {
+  const ta = document.createElement('textarea');
+  ta.value = txt;
+  ta.style.position = 'fixed'; ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch (e) {}
+  ta.remove();
+}
+function showToast(msg) {
+  const old = document.querySelector('.toast');
+  if (old) old.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.classList.add('show'), 20);
+  setTimeout(() => { el.classList.remove('show'); setTimeout(() => el.remove(), 400); }, 2600);
+}
 function shareResult(score, total, topicName) {
   const text = '🧿 Türkçe Quiz · ' + topicName + ': ' + score + ' / ' + total +
     (score === total ? '! Mükemmel! 🌙⭐ ' : '! ') + 'Спробуй і ти:';
-  const isTouch = window.matchMedia && matchMedia('(pointer: coarse)').matches;
-  if (isTouch && navigator.share) {
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if (isMobile && navigator.share) {
     navigator.share({ title: 'Türkçe Quiz', text: text, url: SITE_URL }).catch(() => {});
-  } else if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text + ' ' + SITE_URL)
-      .then(() => alert(t('shareCopied')))
-      .catch(() => prompt(t('shareCopied'), text + ' ' + SITE_URL));
   } else {
-    prompt(t('shareCopied'), text + ' ' + SITE_URL);
+    copyToClipboard(text + ' ' + SITE_URL);
+    showToast(t('shareCopied'));
   }
   track('share', true);
 }
 
 function confettiFor(sc, n) { return sc === n ? 280 : sc >= n * 0.9 ? 180 : sc >= n * 0.6 ? 80 : 0; }
 
-/* Ay-yıldız 🌙⭐ — частинки злітаються у півмісяць із зіркою (лише за 100%).
-   Кольори чергуються: раз червоний, раз золотий */
-let ayGoldTurn = false;
+/* Ay-yıldız 🌙⭐ за 100%: суцільний ЗОЛОТИЙ півмісяць із зіркою,
+   а через раз — ЧЕРВОНИЙ бончук (кругла намистина з білим відблиском) */
+let ayGoldTurn = true;
 function ayYildiz() {
+  const gold = ayGoldTurn;
   ayGoldTurn = !ayGoldTurn;
-  const dotColor = ayGoldTurn ? '#F2B705' : '#E30A17';
-  const dotGlow  = ayGoldTurn ? 'rgba(242,183,5,.85)' : 'rgba(227,10,23,.8)';
+
   const box = document.createElement('div');
   box.className = 'confetti-box';
-  const cx = 50, cy = 34; /* центр у vw/vh */
-  const pts = [];
-  /* півмісяць: зовнішнє коло мінус внутрішнє зміщене */
-  for (let a = 0; a < Math.PI * 2; a += 0.16) {
-    const R = 13;
-    const x = cx + Math.cos(a) * R * 0.62, y = cy + Math.sin(a) * R;
-    /* пропускаємо точки, що потрапляють у «виїмку» */
-    const dx = (x - (cx + 3.6)) / 0.62, dy = y - cy;
-    if (Math.sqrt(dx * dx + dy * dy) > 10.4) pts.push([x, y]);
+  const cx = 50, cy = 33;
+  const pts = []; /* [x, y, колір] */
+
+  if (gold) {
+    /* суцільний півмісяць: сітка точок усередині серпа */
+    const R = 13, ox = 4.2, ir = 10.6;
+    for (let gy = -R; gy <= R; gy += 1.35) {
+      for (let gx = -R; gx <= R; gx += 1.35) {
+        const inOuter = (gx * gx + gy * gy) <= R * R;
+        const dx = gx - ox, dyy = gy;
+        const inInner = (dx * dx + dyy * dyy) <= ir * ir;
+        if (inOuter && !inInner) pts.push([cx + gx * 0.62, cy + gy, '#F2B705']);
+      }
+    }
+    /* зірка: три вкладені контури = виглядає заповненою */
+    const sx = cx + 8.2, sy = cy;
+    [3.6, 2.4, 1.2].forEach(scale => {
+      for (let i = 0; i < 10; i++) {
+        const ang = -Math.PI / 2 + i * Math.PI / 5;
+        const r = (i % 2 === 0 ? scale : scale * 0.45);
+        pts.push([sx + Math.cos(ang) * r * 0.62, sy + Math.sin(ang) * r, '#F2B705']);
+      }
+    });
+    pts.push([sx, sy, '#F2B705']);
+  } else {
+    /* червоний бончук: заповнене коло + білий відблиск угорі-ліворуч */
+    const R = 9;
+    for (let gy = -R; gy <= R; gy += 1.25) {
+      for (let gx = -R; gx <= R; gx += 1.25) {
+        if (gx * gx + gy * gy <= R * R) pts.push([cx + gx * 0.62, cy + gy, '#E30A17']);
+      }
+    }
+    for (let i = 0; i < 8; i++) {
+      const ang = Math.PI * (1.05 + i * 0.09);
+      pts.push([cx + Math.cos(ang) * 4.6 * 0.62, cy + Math.sin(ang) * 4.6, '#FFFFFF']);
+    }
   }
-  /* внутрішній край серпа */
-  for (let a = -1.25; a <= 1.25; a += 0.14) {
-    const x = cx + 3.6 + Math.cos(a) * 10.4 * 0.62, y = cy + Math.sin(a) * 10.4;
-    pts.push([x, y]);
-  }
-  /* п'ятикутна зірка праворуч від серпа */
-  const sx = cx + 11.5, sy = cy;
-  for (let i = 0; i < 10; i++) {
-    const ang = -Math.PI / 2 + i * Math.PI / 5;
-    const r = i % 2 === 0 ? 3.4 : 1.4;
-    pts.push([sx + Math.cos(ang) * r * 0.62, sy + Math.sin(ang) * r]);
-  }
-  pts.forEach(([x, y], i) => {
+
+  pts.forEach(([x, y, col]) => {
     const p = document.createElement('span');
     p.className = 'ay-dot';
-    p.style.background = dotColor;
-    p.style.boxShadow = '0 0 8px ' + dotGlow;
+    p.style.background = col;
+    p.style.boxShadow = '0 0 7px ' + (col === '#FFFFFF' ? 'rgba(255,255,255,.9)' : col + 'CC');
     p.style.left = x + 'vw';
     p.style.top = y + 'vh';
     p.style.animationDelay = (0.55 + Math.random() * 0.35) + 's';
-    /* стартова позиція — розліт з випадкового боку */
     p.style.setProperty('--sx', (Math.random() * 100 - 50) + 'vw');
     p.style.setProperty('--sy', (40 + Math.random() * 60) + 'vh');
     box.appendChild(p);
